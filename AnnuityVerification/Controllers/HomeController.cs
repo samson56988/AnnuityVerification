@@ -14,6 +14,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace AnnuityVerification.Controllers
 {
@@ -63,9 +64,9 @@ namespace AnnuityVerification.Controllers
             try
             {
    
-                var bearer = _memoryCache.Get(1);
-                if (bearer == null)
-                {
+                
+               
+                
                     var authenticate = AuthenticationAsync();
                     string token = authenticate.Result.result.message;
                     model.Token = token;
@@ -78,7 +79,7 @@ namespace AnnuityVerification.Controllers
                         var client = new HttpClient();
                         client.BaseAddress = new Uri(requestUri);
                         client.DefaultRequestHeaders.Accept.Clear();
-                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "");
+                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", $"{model.Token}");
                         client.DefaultRequestHeaders.Add("X-ApiKey", $"{ApiKey}");
                         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                         client.Timeout = TimeSpan.FromMinutes(5);
@@ -121,11 +122,19 @@ namespace AnnuityVerification.Controllers
                             byte[] imageBytes = Convert.FromBase64String(ImageString);
                             System.IO.File.WriteAllBytes(imgPath, imageBytes);
                             string imageData = WebBaseUrl  + ImagePath  + imageName;
-                            PhotoUrl = imageData;
+                        PhotoUrl = imageData;
+                        string hexString = "";
+                        string secretKey = _configuration.GetValue<string>("ApiSettings:SecretKey");
+                        using (HMACSHA256 hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey)))
+                        {
+                            byte[] hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(imageData));
+                            hexString = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
 
-                            CreateImageHash(imageData, out byte[] ImageHash, out byte[] ImageSalt);
+                        }
 
-                            _memoryCache.Set(2, ImageHash, new MemoryCacheEntryOptions()
+                        CreateImageHash(imageData, out byte[] ImageHash, out byte[] ImageSalt);
+
+                            _memoryCache.Set(2, hexString , new MemoryCacheEntryOptions()
                   .SetSlidingExpiration(TimeSpan.FromHours(3)));
 
                             _memoryCache.Set(3, PhotoUrl, new MemoryCacheEntryOptions()
@@ -148,88 +157,8 @@ namespace AnnuityVerification.Controllers
 
                     }
                     
-                }
-                else
-                {
-                    VerificationResponse verifyresponse = new VerificationResponse();
-                    string BaseUrl = _configuration.GetValue<string>("ApiSettings:BaseUrl");
-                    string Verify = _configuration.GetValue<string>("ApiSettings:VerifyNuban");
-                    string requestUri = BaseUrl + Verify;
-                    var client = new HttpClient();
-                    client.BaseAddress = new Uri(requestUri);
-                    client.DefaultRequestHeaders.Accept.Clear();
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "");
-                    client.DefaultRequestHeaders.Add("X-ApiKey", $"{ApiKey}");
-                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    client.Timeout = TimeSpan.FromMinutes(5);
-                    StringContent content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
-                    HttpResponseMessage response = await client.PostAsync(requestUri, content);
-                    if (response.StatusCode == HttpStatusCode.OK)
-                    {
-                        var apiTask = response.Content.ReadAsStringAsync();
-                        var responseString = apiTask.Result;
-                        verifyresponse = JsonConvert.DeserializeObject<VerificationResponse>(responseString);
-
-                        if(verifyresponse.result.success == false)
-                        {
-                            TempData["delete"] = "Please try again later";
-                            return RedirectToAction("Index");
-                        }
-
-                        Message message = new Message();
-
-                        message = JsonConvert.DeserializeObject<Message>(verifyresponse.result.message);
-
-
-                        string ImageBase64 = message.bvn_nuban.photo; 
-
-
-
-                        
-
-                        Random rand = new Random();
-                        string ImageId = Convert.ToString((long)Math.Floor(rand.NextDouble() * 9_000_000_000L + 1_000_000_000L));
-                        string ImageString = ImageBase64;
-                        string ImageUrl = WebBaseUrl + ImagePath;
-                        var path = Path.Combine(_enviroment.WebRootPath, ImagePath);
-
-                        //Check if directory exist
-                        if (!System.IO.Directory.Exists(path))
-                        {
-                            System.IO.Directory.CreateDirectory(path); //Create directory if it doesn't exist
-                        }
-                        string imageName = $"ID{ImageId}" + ".jpg";
-                        //set the image path
-                        string imgPath = Path.Combine(path, imageName);
-                        byte[] imageBytes = Convert.FromBase64String(ImageString);
-                        System.IO.File.WriteAllBytes(imgPath, imageBytes);
-                        string imageData = WebBaseUrl + ImagePath + imageName;
-                        PhotoUrl = imageData;
-                        PhotoUrl = imageData;
-
-                        CreateImageHash(imageData, out byte[] ImageHash, out byte[] ImageSalt);
-
-                        _memoryCache.Set(2, ImageHash, new MemoryCacheEntryOptions()
-              .SetSlidingExpiration(TimeSpan.FromHours(3)));
-
-                        _memoryCache.Set(3, PhotoUrl, new MemoryCacheEntryOptions()
-            .SetSlidingExpiration(TimeSpan.FromHours(3)));
-
-                        TempData["save"] = "Verification completed successfully";
-                        return RedirectToAction("FaceVerification");
-                    }
-                    else if (response.StatusCode == HttpStatusCode.BadRequest)
-                    {
-                        var apiTask = response.Content.ReadAsStringAsync();
-                        var responseString = apiTask.Result;
-                        verifyresponse = JsonConvert.DeserializeObject<VerificationResponse>(responseString);
-                        TempData["delete"] = "Please try again later";
-                        return RedirectToAction("Index");
-                    }
-                    else
-                        TempData["delete"] = "Please try again later";
-                    return RedirectToAction("Index");
-                }
+                
+                
                 return View();
             }
             catch(Exception ex)
