@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@2.51.0/dist/full.css"
+          rel="stylesheet"
+          type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css" />
+    <title>FaceVerification</title>
+</head>
+<body class="h-screen" style="background-color: #f1f5f9">
+    <header>
+        <nav class="bg-slate-100">
+            <div class="px-10 py-3">
+                <img src="/Image/logo.jpg" width="150" alt="logo" />
+            </div>
+        </nav>
+    </header>
+
+    <section class="form">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-6 bg-slate-700">
+            <div>
+                <img src="/Image/verify.jpg" class="" alt="verify" />
+            </div>
+            <div class="px-6 py-5 md:mt-10 lg:mt-10 xl:mt-10">
+                <form asp-controller="Home" asp-action="Index">
+                     <br />
+                     <br />
+                     <br />
+                    <h2 class="font-bold text-xl mb-5 text-gray-50">
+                        Proceed to face verification
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+                        <div class="mt-2">
+                            <metamap-button clientid="62f24fcdccb18d001c0a93fc" flowid="6319d18cb4cf3c001c050ef3" metadata="userPhotoLink": "@ViewBag.PhotoUrl","userPhotoLinkHash":"@ViewBag.PhotoHash"></metamap-button>
+                        </div>
+                    </div>
+                </form>
+                <br />
+                <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] text-neutral-100 motion-reduce:animate-[spin_1.5s_linear_infinite] spinner"
+                     role="status" id="idLoading" style="display:none">
+                    <span class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="px-10 py-12 bg-slate-100">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 text-slate-500 text-sm leading-relaxed">
+            <div class="flex items-center">
+                <img src="/Image/logo.jpg" width="150" alt="logo" />
+            </div>
+            <div>
+                Plot PC 12, Churchgate Street, <br />
+                Victoria Island Lagos.
+            </div>
+            <div>
+                01 279 2930 <br />
+                0700 AllContact <br />
+                0700 2442 6682 28
+            </div>
+            <div>
+                <div>aiicontact@aiicoplc.com</div>
+                @* <div class="flex justify-between items-center text-slate-900">
+                <div>
+                <a href="#"><img src="/icons/facebook-f.svg" alt="fb" /></a>
+                </div>
+                <div>
+                <a href="#"><img src="/icons/instagram.svg" alt="ig" /></a>
+                </div>
+                <div>
+                <a href="#"><img src="/icons/linkedin.svg" alt="ln" /></a>
+                </div>
+                </div>*@
+            </div>
+        </div>
+    </footer>
+
+    @section scripts{
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+
+       
+       
+
+        <script type="text/javascript">
+            const button = document.querySelector('metamap-button');
+            button.addEventListener('metamap:loaded', ({ detail }) => console.log('[METAMAP] Loaded', detail));
+            button.addEventListener('metamap:userStartedSdk', ({ detail }) => console.log('[METAMAP] User started verification', detail));
+            button.addEventListener('metamap:userFinishedSdk', ({ detail }) => console.log('[METAMAP] User finished verification', detail));
+            button.addEventListener('metamap:exitedSdk', ({ detail }) => console.log('[METAMAP] User exited verification', detail));
+        </script>
+        <script module src="https://web-button.getmati.com/button.js"></script>
+
+
+
+        @if (TempData["delete"] != null)
+        {
+            var delete = TempData["delete"];
+            <script type="text/javascript">
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Sorry...',
+                    text: 'Please try again later'
+                })
+            </script>
+        }
+
+        @if (TempData["save"] != null)
+        {
+            <script type="text/javascript">
+                Swal.fire({
+                    title: 'Success..',
+                    text: 'Account Verification Completed',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+            </script>
+        }
+
+    }
+    
+
+</body>
+
+
+</html>
