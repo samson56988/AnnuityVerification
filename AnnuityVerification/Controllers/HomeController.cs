@@ -63,10 +63,7 @@ namespace AnnuityVerification.Controllers
 
             try
             {
-   
-                
-               
-                
+            
                     var authenticate = AuthenticationAsync();
                     string token = authenticate.Result.result.message;
                     model.Token = token;
@@ -98,7 +95,7 @@ namespace AnnuityVerification.Controllers
                             }
 
 
-                             Message message = new Message();
+                         Message message = new Message();
 
                         message = JsonConvert.DeserializeObject<Message>(verifyresponse.result.message);
 
@@ -130,15 +127,13 @@ namespace AnnuityVerification.Controllers
                             byte[] hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(imageData));
                             hexString = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
 
-                        }
-
-                        CreateImageHash(imageData, out byte[] ImageHash, out byte[] ImageSalt);
+                        }                  
 
                             _memoryCache.Set(2, hexString , new MemoryCacheEntryOptions()
-                  .SetSlidingExpiration(TimeSpan.FromHours(3)));
+                  .SetSlidingExpiration(TimeSpan.FromMinutes(1)));
 
                             _memoryCache.Set(3, PhotoUrl, new MemoryCacheEntryOptions()
-                .SetSlidingExpiration(TimeSpan.FromHours(3)));
+                .SetSlidingExpiration(TimeSpan.FromMinutes(1)));
 
 
 
@@ -169,14 +164,7 @@ namespace AnnuityVerification.Controllers
           
         }
 
-        private void CreateImageHash(string image, out byte[] ImageHash, out byte[] ImageSalt)
-        {
-            using (var hmac = new HMACSHA256())
-            {
-                ImageSalt = hmac.Key;
-                ImageHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(image));
-            }
-        }
+    
 
         public async Task<AuthenticationResponse> AuthenticationAsync()
         {

@@ -36,7 +36,7 @@
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
                         <div class="mt-2">
-                            <metamap-button clientid="62f24fcdccb18d001c0a93fc" flowid="6319d18cb4cf3c001c050ef3" metadata="userPhotoLink": "@ViewBag.PhotoUrl","userPhotoLinkHash":"@ViewBag.PhotoHash"></metamap-button>
+                            <metamap-button clientid="62f24fcdccb18d001c0a93fc" flowid="6319d18cb4cf3c001c050ef3" metadata='{"userPhotoLink": "@ViewBag.PhotoUrl","userPhotoLinkHash":"@ViewBag.PhotoHash"}'></metamap-button>
                         </div>
                     </div>
                 </form>
@@ -90,6 +90,8 @@
             button.addEventListener('metamap:userFinishedSdk', ({ detail }) => console.log('[METAMAP] User finished verification', detail));
             button.addEventListener('metamap:exitedSdk', ({ detail }) => console.log('[METAMAP] User exited verification', detail));
         </script>
+
+
         <script module src="https://web-button.getmati.com/button.js"></script>
 
 
