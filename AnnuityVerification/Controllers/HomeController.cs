@@ -49,10 +49,9 @@ namespace AnnuityVerification.Controllers
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 _memoryCache.Set(4, id, new MemoryCacheEntryOptions()
-                .SetSlidingExpiration(TimeSpan.FromMinutes(4)));
+                .SetSlidingExpiration(TimeSpan.FromMinutes(20)));
                 TempData["save"] = "Policy Number Verified";
                 return RedirectToAction("Index");
-
             }
             else
             {
