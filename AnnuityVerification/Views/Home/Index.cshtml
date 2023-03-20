@@ -10,7 +10,7 @@
           type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css" />
-    <title>Verify</title>
+    <title>AIICO ANNUITY VERIFICATION</title>
 </head>
 <body class="h-screen" style="background-color: #f1f5f9">
     <header>
@@ -21,61 +21,68 @@
         </nav>
     </header>
 
-    <section class="form">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-6 bg-slate-700">
-            <div>
-                <img src="./image/verify.jpg" class="" alt="verify" />
-            </div>
-            <div class="px-6 py-5 md:mt-10 lg:mt-10 xl:mt-10">
-                <form asp-controller="Home" asp-action="Index">
-                    <h2 class="font-bold text-xl mb-5 text-gray-50">
-                        Enter your account details
-                    </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
-                        <div class="form-control w-full max-w-xs mb-3">
-                            <label class="label">
-                                <span class="label-text text-white-50" style="color:white">Account Number</span>
-                            </label>
-                            <input type="text" name="AccountNumber"
-                                   placeholder="Account number"
-                                   class="input input-bordered w-full max-w-xs" required />
-                        </div>
-                        <div class="form-control w-full max-w-xs mb-3">
-                            <label class="label">
-                                <span class="label-text text-white-50" style="color:white">Select bank</span>
-                            </label>
-                       @Html.DropDownList("BankCode", new SelectList(ViewBag.BankDetails, "code","bankName"),"--Select--", new {@class = "select select-bordered w-full max-w-xs"})  
-                        </div>
-                        <div class="form-control w-full max-w-xs mb-3">
-                            <label class="label">
-                                <span class="label-text text-white-50" style="color:white">First Name</span>
-                            </label>
-                            <input type="text" name="Firstname"
-                                   placeholder="First name"
-                                   class="input input-bordered w-full max-w-xs"  required/>
-                        </div>
-                        <div class="form-control w-full max-w-xs mb-3">
-                            <label class="label">
-                                <span class="label-text text-white-50" style="color:white">Last Name</span>
-                            </label>
-                            <input type="text" name="Lastname"
-                                   placeholder="Last name"
-                                   class="input input-bordered w-full max-w-xs" required />
-                        </div>
-                       
-                        <div class="mt-3">
-                            <button class="btn btn-primary" onclick="showPreloader()" id="verifyBtn">Verify</button>
-                        </div>
-                    </div>
-                </form>
-                <br />
-               @* <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] text-neutral-100 motion-reduce:animate-[spin_1.5s_linear_infinite] spinner"
-                     role="status" id="idLoading" style="display:none">
-                    <span class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Loading...</span>
-                </div>*@
+
+        <div id="loader" class="hidden fixed top-0 left-0 w-full h-full bg-slate-100 opacity-90">-
+            <div class="flex flex-col items-center justify-center w-full h-screen">
+                <div class="w-20 h-20 border-b-4 border-t-4 border-blue-500 rounded-full animate-spin "></div>
             </div>
         </div>
-    </section>
+
+        <section class="form w-100">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-6 bg-slate-700 w-100">
+                <div class="h-100">
+                    <img class="h-full" src="./image/verify.jpg" class="" alt="verify" />
+                </div>
+                <div class="px-6 py-5 md:mt-10 lg:mt-10 xl:mt-10">
+                    <form asp-controller="Home" asp-action="Index">
+                        <h2 class="font-bold text-xl mb-5 text-gray-50">
+                            Enter your account details
+                        </h2>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2">
+                            <div class="form-control w-full max-w-xs mb-3">
+                                <label class="label">
+                                    <span class="label-text text-white-50" style="color:white">Account Number</span>
+                                </label>
+                                <input type="text" name="AccountNumber"
+                                   placeholder="Account number"
+                                   class="input input-bordered w-full max-w-xs" required />
+                            </div>
+                            <div class="form-control w-full max-w-xs mb-3">
+                                <label class="label">
+                                    <span class="label-text text-white-50" style="color:white">Select bank</span>
+                                </label>
+                                @Html.DropDownList("BankCode", new SelectList(ViewBag.BankDetails, "code","bankName"),"--Select--", new {@class = "select select-bordered w-full max-w-xs"})
+                            </div>
+                            <div class="form-control w-full max-w-xs mb-3">
+                                <label class="label">
+                                    <span class="label-text text-white-50" style="color:white">First Name</span>
+                                </label>
+                                <input type="text" name="Firstname"
+                                   placeholder="First name"
+                                   class="input input-bordered w-full max-w-xs" required />
+                            </div>
+                            <div class="form-control w-full max-w-xs mb-3">
+                                <label class="label">
+                                    <span class="label-text text-white-50" style="color:white">Last Name</span>
+                                </label>
+                                <input type="text" name="Lastname"
+                                   placeholder="Last name"
+                                   class="input input-bordered w-full max-w-xs" required />
+                            </div>
+
+                            <div class="mt-3">
+                                <button class="btn btn-primary" onclick="showPreloader()" id="verifyBtn">Verify</button>
+                            </div>
+                        </div>
+                    </form>
+                    <br />
+                    @* <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] text-neutral-100 motion-reduce:animate-[spin_1.5s_linear_infinite] spinner"
+                role="status" id="idLoading" style="display:none">
+                <span class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Loading...</span>
+                </div>*@
+                </div>
+            </div>
+        </section>
 
     <footer class="px-10 py-12 bg-slate-100">
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 text-slate-500 text-sm leading-relaxed">
@@ -132,10 +139,19 @@
        
     <script>
             const openModalButton = document.getElementById("verifyBtn");
-            $(window).on('click', function () {
-                $('#idLoading').show();
-        });
+            const loader = document.getElementById("loader");
+            openModalButton.addEventListener("click", (e) => {
+                loader.style.display = "block";
+            })
     </script>
+
+        @if ((string)TempData["loading"] == "end")
+        {
+            <script>
+                const loader = document.getElementById("loader");
+                loader.style.display = "none";
+            </script>
+        }
      
         @if (TempData["delete"] != null)
         {

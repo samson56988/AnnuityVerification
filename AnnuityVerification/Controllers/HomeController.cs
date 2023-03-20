@@ -32,6 +32,12 @@ namespace AnnuityVerification.Controllers
             _enviroment = enviroment;
         }
 
+        [HttpGet("error")]
+        public IActionResult Error()
+        {
+            return View();
+        }
+
         public IActionResult Index()
         {
             var fetchbankData = FetchBankData();
@@ -48,6 +54,7 @@ namespace AnnuityVerification.Controllers
         [HttpPost]
         public async Task<IActionResult> IndexAsync(VerificationModel model)
         {
+            TempData["loading"] = "start";
 
             if(ViewBag.BankDetails == null)
             {
@@ -91,6 +98,7 @@ namespace AnnuityVerification.Controllers
                             if(verifyresponse.success == false)
                             {
                                 TempData["delete"] = "Verification failed";
+                                TempData["loading"] = "end";
                                 return RedirectToAction("Index");
                             }
 
@@ -130,23 +138,28 @@ namespace AnnuityVerification.Controllers
                 .SetSlidingExpiration(TimeSpan.FromMinutes(1)));
 
                             TempData["save"] = "Verification completed successfully";
-                            return RedirectToAction("FaceVerification");
+                            TempData["loading"] = "end";
+                        return RedirectToAction("FaceVerification");
                         }
                         else if (response.StatusCode == HttpStatusCode.BadRequest)
                         {
                             TempData["delete"] = "Verification failed";
-                            return RedirectToAction("Index");
+                            TempData["loading"] = "end";
+                        return RedirectToAction("Index");
                         }
                         else
 
                         TempData["delete"] = "Verification failed";
-                        return RedirectToAction("Index");
-                    }             
+                        TempData["loading"] = "end";
+                    return RedirectToAction("Index");
+                    }
+                TempData["loading"] = "end";
                 return View();
             }
             catch(Exception ex)
             {
                 TempData["delete"] = "Please try again later";
+                TempData["loading"] = "end";
                 return RedirectToAction("Index");
             }
           
@@ -234,6 +247,7 @@ namespace AnnuityVerification.Controllers
 
             ViewBag.PhotoHash = _memoryCache.Get(2);
             ViewBag.PhotoUrl = _memoryCache.Get(3);
+            TempData["face-verify"] = "yes";
             return View();
         }
 

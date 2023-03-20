@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@2.51.0/dist/full.css"
+          rel="stylesheet"
+          type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css" />
+    <title>Verify</title>
+</head>
+<body class="h-screen" style="background-color: #f1f5f9">
+    <header>
+        <nav class="bg-slate-100">
+            <div class="px-10 py-3">
+                <img src="./image/logo.jpg" width="150" alt="logo" />
+            </div>
+        </nav>
+    </header>
+
+
+        <div class="bg-slate-800 flex justify-center items-center py-20 w-full">
+            <div class="md:w-[600px] w-80 h-72 bg-slate-100 shadow-lg rounded px-6 md:px-10 py-7 flex flex-col justify-between">
+                <div class="text-black">
+                    <h2 class="text-2xl md:text-5xl font-bold text-center text-red-500 mb-6">ERROR</h2>
+                    <p class="pt-6">Invalid Policy number, Please verify your policy number and try again...</p>
+                </div>
+
+                <div class="w-100 flex justify-center items-center uppercase font-bold">
+                <a href="https://ebusiness.aiicoplc.com/" class="bg-blue-800 px-6 py-4 cursor-pointer text-white rounded shadow-lg hover:shaodw-none">Go Back Home</a>
+                </div>
+            </div>
+        </div>
+
+
+    <footer class="px-10 py-12 bg-slate-100">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 text-slate-500 text-sm leading-relaxed">
+            <div class="flex items-center">
+                <img src="./image/logo.jpg" width="150" alt="logo" />
+            </div>
+            <div>
+                Plot PC 12, Churchgate Street, <br />
+                Victoria Island Lagos.
+            </div>
+            <div>
+                01 279 2930 <br />
+                0700 AllContact <br />
+                0700 2442 6682 28
+            </div>
+            <div>
+                <div>aiicontact@aiicoplc.com</div>
+                @* <div class="flex justify-between items-center text-slate-900">
+                <div>
+                <a href="#"><img src="/icons/facebook-f.svg" alt="fb" /></a>
+                </div>
+                <div>
+                <a href="#"><img src="/icons/instagram.svg" alt="ig" /></a>
+                </div>
+                <div>
+                <a href="#"><img src="/icons/linkedin.svg" alt="ln" /></a>
+                </div>
+                </div>*@
+            </div>
+        </div>
+    </footer>
+
+    @section scripts{
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+    }
+
+</body>
+
+
+</html>
+
