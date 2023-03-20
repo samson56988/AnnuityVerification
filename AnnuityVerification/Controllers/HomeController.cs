@@ -32,38 +32,16 @@ namespace AnnuityVerification.Controllers
             _enviroment = enviroment;
         }
 
-
-        public async Task<IActionResult> VerifiyPolicy(string id)
+        [HttpGet("error")]
+        public IActionResult Error()
         {
-            id = "NCSP/IB/2017/077067";
-            string BaseUrl = _configuration.GetValue<string>("ApiSettings:PolicyVerificarionUrl");
-            string ApiKey = _configuration.GetValue<string>("ApiSettings:APIkey");
-            string requestUri = BaseUrl + id;
-            var client = new HttpClient();
-            client.BaseAddress = new Uri(requestUri);
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Add("X-ApiKey", $"{ApiKey}");
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            client.Timeout = TimeSpan.FromMinutes(5);
-            HttpResponseMessage response = await client.GetAsync(requestUri);
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                _memoryCache.Set(4, id, new MemoryCacheEntryOptions()
-                .SetSlidingExpiration(TimeSpan.FromMinutes(20)));
-                TempData["save"] = "Policy Number Verified";
-                return RedirectToAction("Index");
-            }
-            else
-            {
-                TempData["save"] = "Policy Verification Failed";
-                return RedirectToAction("Index");
-            }
+            return View();
         }
 
         public IActionResult Index()
         {
             var fetchbankData = FetchBankData();
-            var policy = _memoryCache.Get(4);
+
             if (fetchbankData == null)
             {
                 return RedirectToAction("Index");
@@ -74,11 +52,11 @@ namespace AnnuityVerification.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Index(VerificationModel model)
+        public async Task<IActionResult> IndexAsync(VerificationModel model)
         {
-            var policy = _memoryCache.Get(4);
-            model.PolicyNo = policy.ToString();
-            if (ViewBag.BankDetails == null)
+            TempData["loading"] = "start";
+
+            if(ViewBag.BankDetails == null)
             {
                 var fetchbankData = FetchBankData();
 
@@ -120,6 +98,7 @@ namespace AnnuityVerification.Controllers
                             if(verifyresponse.success == false)
                             {
                                 TempData["delete"] = "Verification failed";
+                                TempData["loading"] = "end";
                                 return RedirectToAction("Index");
                             }
 
@@ -159,23 +138,28 @@ namespace AnnuityVerification.Controllers
                 .SetSlidingExpiration(TimeSpan.FromMinutes(1)));
 
                             TempData["save"] = "Verification completed successfully";
-                            return RedirectToAction("FaceVerification");
+                            TempData["loading"] = "end";
+                        return RedirectToAction("FaceVerification");
                         }
                         else if (response.StatusCode == HttpStatusCode.BadRequest)
                         {
                             TempData["delete"] = "Verification failed";
-                            return RedirectToAction("Index");
+                            TempData["loading"] = "end";
+                        return RedirectToAction("Index");
                         }
                         else
 
                         TempData["delete"] = "Verification failed";
-                        return RedirectToAction("Index");
-                    }             
+                        TempData["loading"] = "end";
+                    return RedirectToAction("Index");
+                    }
+                TempData["loading"] = "end";
                 return View();
             }
             catch(Exception ex)
             {
                 TempData["delete"] = "Please try again later";
+                TempData["loading"] = "end";
                 return RedirectToAction("Index");
             }
           
@@ -263,6 +247,7 @@ namespace AnnuityVerification.Controllers
 
             ViewBag.PhotoHash = _memoryCache.Get(2);
             ViewBag.PhotoUrl = _memoryCache.Get(3);
+            TempData["face-verify"] = "yes";
             return View();
         }
 

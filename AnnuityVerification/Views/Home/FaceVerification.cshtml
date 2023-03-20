@@ -10,7 +10,7 @@
           type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css" />
-    <title>FaceVerification</title>
+    <title>AIICO ANNUITY VERIFICATION</title>
 </head>
 <body class="h-screen" style="background-color: #f1f5f9">
     <header>
@@ -83,12 +83,20 @@
     @section scripts{
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="~/lib/jquery/dist/jquery.js"></script>
-        <script type="text/javascript">
-            const button = document.querySelector('metamap-button');
+
+            <script type="text/javascript">
+                const button = document.querySelector('metamap-button');
+            console.log("apple");
             button.addEventListener('metamap:loaded', ({ detail }) => console.log('[METAMAP] Loaded', detail));
             button.addEventListener('metamap:userStartedSdk', ({ detail }) => console.log('[METAMAP] User started verification', detail));
-            button.addEventListener('metamap:userFinishedSdk', ({ detail }) => console.log('[METAMAP] User finished verification', detail));
-            button.addEventListener('metamap:exitedSdk', ({ detail }) => console.log('[METAMAP] User exited verification', detail));
+            button.addEventListener('metamap:userFinishedSdk', ({ detail }) => {
+                console.log('[METAMAP] User finished verification', detail);
+                window.location.replace("https://ebusiness.aiicoplc.com/");
+            });
+            button.addEventListener('metamap:exitedSdk', ({ detail }) => {
+                console.log('[METAMAP] User exited verification', detail);
+                window.location.replace("https://ebusiness.aiicoplc.com/");
+            });
         </script>
 
 
