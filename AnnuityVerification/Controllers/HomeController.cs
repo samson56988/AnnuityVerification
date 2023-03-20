@@ -88,37 +88,31 @@ namespace AnnuityVerification.Controllers
                             var responseString = apiTask.Result;
                             verifyresponse = JsonConvert.DeserializeObject<VerificationResponse>(responseString);
 
-                            if(verifyresponse.result.data == false)
+                            if(verifyresponse.success == false)
                             {
                                 TempData["delete"] = "Verification failed";
                                 return RedirectToAction("Index");
                             }
 
+                        string ImageBase64 = verifyresponse.result.table.photo;
 
-                         Message message = new Message();
+                        Random rand = new Random();
+                        string ImageId = Convert.ToString((long)Math.Floor(rand.NextDouble() * 9_000_000_000L + 1_000_000_000L));
+                        string ImageString = ImageBase64;
+                        string ImageUrl = WebBaseUrl + ImagePath;
+                        var path = Path.Combine(_enviroment.WebRootPath, ImagePath);
 
-                        message = JsonConvert.DeserializeObject<Message>(verifyresponse.result.message);
-
-
-                        string ImageBase64 = message.bvn_nuban.photo; 
-
-                            Random rand = new Random();
-                            string ImageId = Convert.ToString((long)Math.Floor(rand.NextDouble() * 9_000_000_000L + 1_000_000_000L));
-                            string ImageString = ImageBase64;
-                            string ImageUrl = WebBaseUrl + ImagePath;
-                            var path = Path.Combine(_enviroment.WebRootPath, ImagePath);
-
-                            //Check if directory exist
-                            if (!System.IO.Directory.Exists(path))
-                            {
-                                System.IO.Directory.CreateDirectory(path); //Create directory if it doesn't exist
-                            }
-                            string imageName = $"ID{ImageId}" + ".jpg";
-                            //set the image path
-                            string imgPath = Path.Combine(path, imageName);
-                            byte[] imageBytes = Convert.FromBase64String(ImageString);
-                            System.IO.File.WriteAllBytes(imgPath, imageBytes);
-                            string imageData = WebBaseUrl  + ImagePath  + imageName;
+                        //Check if directory exist
+                        if (!System.IO.Directory.Exists(path))
+                        {
+                            System.IO.Directory.CreateDirectory(path); //Create directory if it doesn't exist
+                        }
+                        string imageName = $"ID{ImageId}" + ".jpg";
+                        //set the image path
+                        string imgPath = Path.Combine(path, imageName);
+                        byte[] imageBytes = Convert.FromBase64String(ImageString);
+                        System.IO.File.WriteAllBytes(imgPath, imageBytes);
+                        string imageData = WebBaseUrl + ImagePath + imageName;
                         PhotoUrl = imageData;
                         string hexString = "";
                         string secretKey = _configuration.GetValue<string>("ApiSettings:SecretKey");
@@ -127,15 +121,13 @@ namespace AnnuityVerification.Controllers
                             byte[] hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(imageData));
                             hexString = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
 
-                        }                  
+                        }
 
-                            _memoryCache.Set(2, hexString , new MemoryCacheEntryOptions()
+                        _memoryCache.Set(2, hexString, new MemoryCacheEntryOptions()
                   .SetSlidingExpiration(TimeSpan.FromMinutes(1)));
 
-                            _memoryCache.Set(3, PhotoUrl, new MemoryCacheEntryOptions()
+                        _memoryCache.Set(3, PhotoUrl, new MemoryCacheEntryOptions()
                 .SetSlidingExpiration(TimeSpan.FromMinutes(1)));
-
-
 
                             TempData["save"] = "Verification completed successfully";
                             return RedirectToAction("FaceVerification");
@@ -151,9 +143,7 @@ namespace AnnuityVerification.Controllers
                         return RedirectToAction("Index");
 
                     }
-                    
-                
-                
+                          
                 return View();
             }
             catch(Exception ex)

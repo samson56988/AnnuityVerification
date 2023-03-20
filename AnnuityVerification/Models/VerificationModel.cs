@@ -6,7 +6,7 @@
         public string Lastname { get; set; }
         public string AccountNumber { get; set; }
         public string BankCode { get; set; }
-        public string PolicyNo { get; set; }
+        public string PolicyNo { get; set; } = "2322392398";
         public bool IsCompliance { get; set; } = false;
         public bool IsFaceMatch { get; set; } = true;
         public string Token { get; set; }
