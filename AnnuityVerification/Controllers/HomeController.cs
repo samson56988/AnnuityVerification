@@ -32,10 +32,39 @@ namespace AnnuityVerification.Controllers
             _enviroment = enviroment;
         }
 
+
+        public async Task<IActionResult> VerifiyPolicy(string id)
+        {
+            id = "NCSP/IB/2017/077067";
+            string BaseUrl = _configuration.GetValue<string>("ApiSettings:PolicyVerificarionUrl");
+            string ApiKey = _configuration.GetValue<string>("ApiSettings:APIkey");
+            string requestUri = BaseUrl + id;
+            var client = new HttpClient();
+            client.BaseAddress = new Uri(requestUri);
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Add("X-ApiKey", $"{ApiKey}");
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.Timeout = TimeSpan.FromMinutes(5);
+            HttpResponseMessage response = await client.GetAsync(requestUri);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                _memoryCache.Set(4, id, new MemoryCacheEntryOptions()
+                .SetSlidingExpiration(TimeSpan.FromMinutes(4)));
+                TempData["save"] = "Policy Number Verified";
+                return RedirectToAction("Index");
+
+            }
+            else
+            {
+                TempData["save"] = "Policy Verification Failed";
+                return RedirectToAction("Index");
+            }
+        }
+
         public IActionResult Index()
         {
             var fetchbankData = FetchBankData();
-
+            var policy = _memoryCache.Get(4);
             if (fetchbankData == null)
             {
                 return RedirectToAction("Index");
@@ -46,10 +75,11 @@ namespace AnnuityVerification.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> IndexAsync(VerificationModel model)
+        public async Task<IActionResult> Index(VerificationModel model)
         {
-
-            if(ViewBag.BankDetails == null)
+            var policy = _memoryCache.Get(4);
+            model.PolicyNo = policy.ToString();
+            if (ViewBag.BankDetails == null)
             {
                 var fetchbankData = FetchBankData();
 
