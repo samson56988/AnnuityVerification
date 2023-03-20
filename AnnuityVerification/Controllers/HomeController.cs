@@ -141,9 +141,7 @@ namespace AnnuityVerification.Controllers
 
                         TempData["delete"] = "Verification failed";
                         return RedirectToAction("Index");
-
-                    }
-                          
+                    }             
                 return View();
             }
             catch(Exception ex)

@@ -51,19 +51,11 @@ namespace MetaWebHook.Controllers
                     request.AddHeader("authorization", $"Bearer {Token}");
                     IRestResponse response = client.Execute(request);
                     verify = JsonConvert.DeserializeObject<AnnuityVerificationResponse>(response.Content);
-
-
                     PolicyNo = verify.customInputValues.fields[0].atomicFieldParams.value;
                     //Image = verify.steps[0].data.selfieUrl;
-
                     PolicyDto dto = new PolicyDto();
                     dto.PolicyNo = PolicyNo;
-                    dto.Image = user.metadata.userPhotoLink;
-                  
-
-
-
-
+                    dto.Image = user.metadata.userPhotoLink;  
                     string WebBaseUrl = configuration.GetValue<string>("ApiSettings:BaseUrl");
                     string AnnuityUrl = configuration.GetValue<string>("ApiSettings:UpdateAnnuity");
 
