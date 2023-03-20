@@ -32,6 +32,45 @@ namespace AnnuityVerification.Controllers
             _enviroment = enviroment;
         }
 
+        public async Task<IActionResult> VerifiyPolicyAsync(string id)
+        {
+            if(id== null)
+            {
+                id = "NCSP/IB/2017/077067";
+            }
+            PolicyVerificationResponse verification = new PolicyVerificationResponse();
+            string BaseUrl = _configuration.GetValue<string>("ApiSettings:PolicyVerificarionUrl");
+            string ApiKey = _configuration.GetValue<string>("ApiSettings:APIkey");
+            string requestUri = BaseUrl + id;
+            var client = new HttpClient();
+            client.BaseAddress = new Uri(requestUri);
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Add("X-ApiKey", $"{ApiKey}");
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.Timeout = TimeSpan.FromMinutes(5);
+            HttpResponseMessage response = await client.GetAsync(requestUri);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var apiTask = response.Content.ReadAsStringAsync();
+                var responseString = apiTask.Result;
+                verification = JsonConvert.DeserializeObject<PolicyVerificationResponse>(responseString);
+
+                if(verification.result.isSuccessful == false)
+                {
+                    return RedirectToAction("error");
+                }
+
+                _memoryCache.Set(4, id, new MemoryCacheEntryOptions()
+                .SetSlidingExpiration(TimeSpan.FromMinutes(20)));
+                TempData["save"] = "Policy Verification Completed";
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                return RedirectToAction("error");
+            }
+        }
+
         [HttpGet("error")]
         public IActionResult Error()
         {
@@ -70,6 +109,8 @@ namespace AnnuityVerification.Controllers
 
             try
             {
+                var policy = _memoryCache.Get(4);
+                model.PolicyNo = policy.ToString(); 
             
                     var authenticate = AuthenticationAsync();
                     string token = authenticate.Result.result.message;
