@@ -1,4 +1,4 @@
-﻿namespace MetaWebHook.Models
+﻿namespace AnnuityVerification.Models
 {
     public class ServiceResponse<T>
     {

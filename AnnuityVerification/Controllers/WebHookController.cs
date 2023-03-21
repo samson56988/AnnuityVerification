@@ -1,39 +1,44 @@
-﻿using MetaWebHook.Models;
+﻿using AnnuityVerification.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
+using Microsoft.DotNet.Scaffolding.Shared.CodeModifier.CodeChange;
 using Newtonsoft.Json;
 using RestSharp;
 using System.Net.Http.Headers;
 using System.Net;
 using System.Text;
+using System.IO;
 
-namespace MetaWebHook.Controllers
+using Method = RestSharp.Method;
+using System;
+
+namespace AnnuityVerification.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class WebhookController : ControllerBase
+    public class WebHookController : ControllerBase
     {
-
         private readonly MetaDbContext _dbContext;
         private readonly IConfiguration configuration;
 
-        public WebhookController(MetaDbContext dbContext, IConfiguration configuration)
+
+
+        public WebHookController(MetaDbContext dbContext, IConfiguration configuration)
         {
             _dbContext = dbContext;
             this.configuration = configuration;
         }
 
 
-        [HttpPost("MetaMap")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Produces("application/json", "application/xml", "text/json")]
+        [Consumes("application/json", "application/xml", "text/json")]
         public async Task<IActionResult> PayLoad(VerificationDetails user)
         {
-            if (user.eventName == "verification_completed"||user.eventName == "verification_updated")
+            if (user.eventName == "verification_completed" || user.eventName == "verification_updated")
             {
-                if(user.status == "verified")
+                if (user.status == "verified")
                 {
                     string Url = "";
                     Url = user.resource;
@@ -45,14 +50,14 @@ namespace MetaWebHook.Controllers
                     string VerificationUrl = configuration.GetValue<string>("AnnuityVerification:VerificationUrl");
                     AnnuityVerificationResponse? verify = new AnnuityVerificationResponse();
                     var client = new RestClient($"{Url}");
-                    var request = new RestRequest(Method.GET);
+                    var request = new RestRequest(RestSharp.Method.GET);
                     request.AddHeader("accept", "application/json");
                     request.AddHeader("Content-Type", "application/json");
                     request.AddHeader("authorization", $"Bearer {Token}");
                     IRestResponse response = client.Execute(request);
                     verify = JsonConvert.DeserializeObject<AnnuityVerificationResponse>(response.Content);
                     PolicyNo = verify.customInputValues.fields[0].atomicFieldParams.value;
-                    if(verify.steps[0].data.selfieUrl!=null)
+                    if (verify.steps[0].data.selfieUrl != null)
                     {
                         Image = verify.steps[0].data.selfieUrl;
                     }
@@ -60,12 +65,14 @@ namespace MetaWebHook.Controllers
                     {
                         Image = verify.steps[1].data.selfieUrl;
                     }
+
+                    string imageAfter = Image.Replace("https://media.getmati.com/file?location=", "");
+
                     PolicyDto dto = new PolicyDto();
-                    dto.PolicyNo = PolicyNo;
-                    dto.Image = Image;  
+                    dto.Image = Convert.ToString(imageAfter.ToString());
+                    dto.PolicyNo = "NCSP/IB/2017/077067";           
                     string WebBaseUrl = configuration.GetValue<string>("ApiSettings:BaseUrl");
                     string AnnuityUrl = configuration.GetValue<string>("ApiSettings:UpdateAnnuity");
-
                     string requestUri = WebBaseUrl + AnnuityUrl;
                     string ApiKey = configuration.GetValue<string>("ApiSettings:APIkey");
                     var Flexureclient = new HttpClient();
@@ -75,29 +82,33 @@ namespace MetaWebHook.Controllers
                     Flexureclient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                     Flexureclient.Timeout = TimeSpan.FromMinutes(5);
                     StringContent content = new StringContent(JsonConvert.SerializeObject(dto), Encoding.UTF8, "application/json");
-                    HttpResponseMessage Flexureresponse = await Flexureclient.PutAsync(requestUri, content);
+                    HttpResponseMessage Flexureresponse = await Flexureclient.PostAsync(requestUri, content);
+                    PolicyUpdateResponse polres = new PolicyUpdateResponse();
 
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
-                        VerificationPayLoad load = new VerificationPayLoad();
-                        load.timestamp = DateTime.Now;
-                        load.resource = Url;
-                        load.flowId = dto.PolicyNo;
-                        load.eventName = dto.Image; ;
-                        _dbContext.tbl_Verification.Add(load);
-                        await _dbContext.SaveChangesAsync();
+                        var apiTask = Flexureresponse.Content.ReadAsStringAsync();
+                        var responseString = apiTask.Result;
+                        polres = JsonConvert.DeserializeObject<PolicyUpdateResponse>(responseString);
                         return Ok();
 
                     }
+
+                    VerificationPayLoad load = new VerificationPayLoad();
+                    load.timestamp = DateTime.Now;
+                    load.resource = Url;
+                    load.PolicyNo = dto.PolicyNo;
+                    load.eventName = user.eventName;
+                    load.MetaPicture = Image;
+                    _dbContext.tbl_Verification.Add(load);
+                    await _dbContext.SaveChangesAsync();
                     return Ok();
                 }
                 else
                 {
                     return BadRequest();
                 }
-                
             }
-
             return BadRequest();
         }
 

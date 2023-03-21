@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace MetaWebHook
+namespace AnnuityVerification
 {
     public class MetaDbContext: DbContext
     {

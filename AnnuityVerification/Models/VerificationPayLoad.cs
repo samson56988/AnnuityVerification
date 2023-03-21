@@ -1,13 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MetaWebHook
+namespace AnnuityVerification
 {
     public class VerificationPayLoad
     {
         [Key]
-        public string? resource { get; set; }
-        public string? eventName { get; set; }
-        public string? flowId { get; set; }
+        public string resource { get; set; }
+        public string eventName { get; set; }
+        public string PolicyNo { get; set; }
+        public string MetaPicture { get; set; }
         public DateTime timestamp { get; set; }
 
     }
