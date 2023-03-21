@@ -31,7 +31,7 @@ namespace MetaWebHook.Controllers
         [HttpPost("MetaMap")]
         public async Task<IActionResult> PayLoad(VerificationDetails user)
         {
-            if (user.eventName == "verification_completed")
+            if (user.eventName == "verification_completed"||user.eventName == "verification_updated")
             {
                 if(user.status == "verified")
                 {
@@ -52,10 +52,17 @@ namespace MetaWebHook.Controllers
                     IRestResponse response = client.Execute(request);
                     verify = JsonConvert.DeserializeObject<AnnuityVerificationResponse>(response.Content);
                     PolicyNo = verify.customInputValues.fields[0].atomicFieldParams.value;
-                    //Image = verify.steps[0].data.selfieUrl;
+                    if(verify.steps[0].data.selfieUrl!=null)
+                    {
+                        Image = verify.steps[0].data.selfieUrl;
+                    }
+                    else
+                    {
+                        Image = verify.steps[1].data.selfieUrl;
+                    }
                     PolicyDto dto = new PolicyDto();
                     dto.PolicyNo = PolicyNo;
-                    dto.Image = user.metadata.userPhotoLink;  
+                    dto.Image = Image;  
                     string WebBaseUrl = configuration.GetValue<string>("ApiSettings:BaseUrl");
                     string AnnuityUrl = configuration.GetValue<string>("ApiSettings:UpdateAnnuity");
 
@@ -76,7 +83,7 @@ namespace MetaWebHook.Controllers
                         load.timestamp = DateTime.Now;
                         load.resource = Url;
                         load.flowId = dto.PolicyNo;
-                        load.eventName = user.status;
+                        load.eventName = dto.Image; ;
                         _dbContext.tbl_Verification.Add(load);
                         await _dbContext.SaveChangesAsync();
                         return Ok();

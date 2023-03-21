@@ -31,6 +31,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=VerifiyPolicy}/{id?}");
+    pattern: "{controller=Home}/{action=StartPage}/{id?}");
 
 app.Run();
