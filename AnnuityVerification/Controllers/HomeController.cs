@@ -39,11 +39,7 @@ namespace AnnuityVerification.Controllers
 
         [HttpGet]
         public async Task<ActionResult> VerifiyPolicy([FromQuery] string Policyno)
-        {
-            //if(id == null)
-            //{
-            //    id = "NCSP/IB/2017/077067";
-            //}
+        {      
 
             try
             {
@@ -76,7 +72,7 @@ namespace AnnuityVerification.Controllers
                         return RedirectToAction("error");
                     }
                     _memoryCache.Set(4, PolicyNo, new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(TimeSpan.FromMinutes(20)));
+                    .SetSlidingExpiration(TimeSpan.FromMinutes(30)));
                     TempData["save"] = "Policy Verification Completed";
                     return RedirectToAction("Index");
                 }
